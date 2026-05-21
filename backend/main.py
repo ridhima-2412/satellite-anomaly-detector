@@ -52,6 +52,6 @@ def receive_telemetry(data: schemas.TelemetrySchema, db: Session = Depends(get_d
 
 @app.get("/anomalies/latest")
 def get_latest_anomalies(db: Session = Depends(get_db)):
-    anomalies = db.query(models.AnomalyEvent).order_by(models.Anomaly.timestamp.desc()).limit(10).all()
+    anomalies = db.query(models.AnomalyEvent)
     return anomalies
 
