@@ -13,8 +13,8 @@ from telemetry_simulator import TelemetrySimulator
 from temp_anomalies import TempAnomalyInjector
 from sensor_failures import SensorFailureInjector
 from comms_anomalies import CommsAnomalyInjector
-
-BACKEND_URL = "http://127.0.0.1:8000/telemetry/"
+import os
+BASE_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 SEND_INTERVAL_SECONDS = 3.0  # how often to send telemetry per sat
 
@@ -33,7 +33,7 @@ def main():
     sims = {sid: build_pipeline(sid) for sid in satellites}
 
     print(f"Starting simulator for {len(satellites)} satellites.")
-    print(f"Sending telemetry to {BACKEND_URL}")
+    print(f"Sending telemetry to {BASE_URL}")
 
     try:
         while True:
@@ -41,7 +41,7 @@ def main():
                 data = sim.step(SEND_INTERVAL_SECONDS)
 
                 try:
-                    resp = requests.post(BACKEND_URL, json=data, timeout=3)
+                    resp = requests.post(f"{BASE_URL}/telemetry/", json=data, timeout=3)
                     if not resp.ok:
                         print(f"[{sid}] backend error {resp.status_code}: {resp.text}")
                     else:

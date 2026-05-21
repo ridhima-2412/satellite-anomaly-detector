@@ -6,8 +6,8 @@ import plotly.graph_objects as go
 import numpy as np
 from datetime import datetime, timedelta
 import time
-
-BASE_URL = "http://127.0.0.1:8000"
+import os
+BASE_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 LATEST_ENDPOINT = f"{BASE_URL}/anomalies/latest"
 HISTORY_ENDPOINT = f"{BASE_URL}/anomalies/history"
 ALERTS_ENDPOINT = f"{BASE_URL}/alerts/send"
