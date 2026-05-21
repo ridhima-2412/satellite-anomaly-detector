@@ -15,12 +15,21 @@ def health_check():
 
 @app.post("/telemetry/")
 def receive_telemetry(data: schemas.TelemetrySchema, db: Session = Depends(get_db)):
-    telemetry = models.Telemetry(**data.dict())
+    # Map simulator fields to DB fields
+    telemetry_data = data.dict()
+    telemetry_data['temperature'] = telemetry_data.pop('temp_payload', None)
+    telemetry_data['rssi'] = telemetry_data.pop('comms_rssi', None)
+    telemetry_data['snr'] = telemetry_data.pop('comms_snr', None)
+    telemetry_data['packet_loss'] = telemetry_data.pop('comms_packet_loss', None)
+    # Remove extra fields not in DB model
+    for key in ['temp_battery', 'temp_bus', 'sensor1_value', 'sensor2_value', 'sensor3_value']:
+        telemetry_data.pop(key, None)
+
+    telemetry = models.Telemetry(**telemetry_data)
     db.add(telemetry)
     db.commit()
     db.refresh(telemetry)
 
-    # Example anomaly logic
     issues = []
     score = 0
     severity = "normal"
