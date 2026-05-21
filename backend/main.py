@@ -73,3 +73,19 @@ def get_latest_anomalies(db: Session = Depends(get_db)):
         }
         for a in anomalies
     ]}
+@app.get("/telemetry/positions")
+def get_telemetry_positions(limit: int = 500, db: Session = Depends(get_db)):
+    positions = db.query(models.Telemetry).order_by(models.Telemetry.timestamp.desc()).limit(limit).all()
+    return {"data": [
+        {
+            "satellite_id": p.satellite_id,
+            "position_x": p.position_x,
+            "position_y": p.position_y,
+            "position_z": p.position_z,
+            "velocity_x": p.velocity_x,
+            "velocity_y": p.velocity_y,
+            "velocity_z": p.velocity_z,
+            "timestamp": p.timestamp.isoformat()
+        }
+        for p in positions
+    ]}
