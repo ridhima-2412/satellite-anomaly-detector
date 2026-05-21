@@ -9,6 +9,9 @@ from datetime import datetime
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Satellite Telemetry Backend")
+@app.get("/")
+def health_check():
+    return {"status": "ok"}
 
 @app.post("/telemetry/")
 def receive_telemetry(data: schemas.TelemetrySchema, db: Session = Depends(get_db)):
