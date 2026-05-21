@@ -34,12 +34,12 @@ def receive_telemetry(data: schemas.TelemetrySchema, db: Session = Depends(get_d
     score = 0
     severity = "normal"
 
-    if telemetry.temperature and telemetry.temperature > 70:
-        issues.append("High Temperature")
-        score += 0.6
-    if telemetry.packet_loss and telemetry.packet_loss > 10:
-        issues.append("High Packet Loss")
-        score += 0.8
+    if telemetry.temperature and telemetry.temperature > 45:
+       issues.append("High Temperature")
+       score += 0.6
+    if telemetry.packet_loss and telemetry.packet_loss > 0.1:
+       issues.append("High Packet Loss")
+       score += 0.8
 
     if len(issues) == 1:
         severity = "warning"
