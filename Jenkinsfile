@@ -2,13 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone') {
-            steps {
-                git branch: 'Main',
-                    url: 'https://github.com/ridhima-2412/satellite-anomaly-detector.git'
-            }
-        }
-
         stage('Deploy to EC2') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY')]) {
