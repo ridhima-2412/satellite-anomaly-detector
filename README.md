@@ -20,6 +20,7 @@ project/
 │-- data/
 │-- requirements.txt
 │-- Dockerfile
+|-- Jenkinsfile
 │-- .env
 
 # Setup & Installation
