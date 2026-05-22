@@ -1,119 +1,101 @@
-# Project Overview
-This system simulates satellite telemetry, detects anomalies using a FastAPI backend, 
-stores them in SQLite, and visualizes results in a Streamlit dashboard . 
+markdown# 🛰️ Satellite Anomaly Detector
 
-## Project Structure
-project/
+A containerized satellite telemetry monitoring system that simulates satellite data, detects anomalies using a FastAPI backend, stores them in PostgreSQL, and visualizes results in a Streamlit dashboard. Deployed on AWS EC2 with automated CI/CD using Jenkins and GitHub Webhooks.
+
+## 🏗️ Architecture
+┌─────────────────────────┐
+│     Simulator Service    │
+│  (Generates Telemetry)   │
+└──────────────┬───────────┘
+│  POST /telemetry/
+▼
+┌────────────────────────┐
+│     FastAPI Backend    │
+│      (port 8000)       │
+│ • Receives telemetry   │
+│ • Detects anomalies    │
+│ • Stores to PostgreSQL │
+└──────────────┬─────────┘
+│
+▼
+┌──────────────────────────┐
+│     PostgreSQL Database  │
+│       (port 5432)        │
+└──────────────┬───────────┘
+│  GET /anomalies/latest
+▼
+┌──────────────────────────┐
+│     Streamlit Dashboard  │
+│        (port 8501)       │
+│ • Live anomaly alerts    │
+│ • Analytics charts       │
+│ • 3D Orbit visualization │
+└───────────────────────────┘
+
+## 🚀 Tech Stack
+
+- **Backend:** FastAPI + SQLAlchemy + PostgreSQL
+- **Dashboard:** Streamlit + Plotly
+- **Containerization:** Docker + Docker Compose
+- **Cloud:** AWS EC2 (Ubuntu 22.04, t2.micro)
+- **CI/CD:** Jenkins + GitHub Webhooks
+
+## 📁 Project Structure
+satellite-anomaly-detector/
 │-- backend/
-│   │-- core/
+│   │-- core/          # database, models, schemas
 │   │-- routes/
-│   │-- models/
-│   │-- schemas/
 │   │-- services/
 │   │-- main.py
 │-- dashboard/
+│   │-- streamlit_app.py
+│   │-- Dockerfile
 │-- simulator/
-│-- scripts/
-│   │-- start_backend.bat
-│   │-- start_dashboard.bat
-│   │-- start_simulator.bat
-│-- data/
-│-- requirements.txt
-│-- Dockerfile
-|-- Jenkinsfile
+│   │-- simulator.py
+│   │-- Dockerfile
+│-- Dockerfile         # backend Dockerfile
+│-- docker-compose.yml
+│-- Jenkinsfile
 │-- .env
 
-# Setup & Installation
- # 1. Install dependencies
-pip install -r backend/requirements.txt
- # 2.creation of .env file
-DB_URL=sqlite:///./data/anomalies.db
-# Start backend
-bash scripts/start_backend.bat
-# Start dashboard
-bash scripts/start_dashboard.bat
-# Start simulator
-bash scripts/start_simulator.bat
-# Docker
-docker build -t anomaly-backend .
-docker run -p 8000:8000 anomaly-backend
+## ⚙️ Setup & Installation
 
-# Architecture Overview and Diagram
-The system is composed of three main services that work together to detect and visualize satellite anomalies:
+### Prerequisites
+- Docker & Docker Compose
+- Git
 
-Simulator – generates synthetic satellite telemetry data
+### 1. Clone the repository
+```bash
+git clone https://github.com/ridhima-2412/satellite-anomaly-detector.git
+cd satellite-anomaly-detector
+```
 
-FastAPI Backend – processes telemetry, runs anomaly detection, and stores results
+### 2. Create `.env` file
+DB_URL=postgresql://postgres:postgres@db:5432/telemetry
+BACKEND_URL=http://backend:8000
 
-Dashboard – visualizes anomalies retrieved from the backend
+### 3. Run with Docker Compose
+```bash
+docker compose up --build -d
+```
 
-SQLite Database – simple file-based storage for anomaly logs
+### 4. Access the services
+- FastAPI docs: `http://localhost:8000/docs`
+- Streamlit dashboard: `http://localhost:8501`
 
-                   ┌─────────────────────────┐
-                   │     Simulator Service    │
-                   │  (Generates Telemetry)   │
-                   └──────────────┬───────────┘
-                                  │  POST /data
-                                  ▼
-                     ┌────────────────────────┐
-                     │     FastAPI Backend    │
-                     │       (core/main.py)   │
-                     │                        │
-                     │ • Receives telemetry   │
-                     │ • Runs anomaly model   │
-                     │ • Stores anomalies     │
-                     └──────────────┬─────────┘
-                                    │
-                     Writes to DB   │
-                                    ▼
-                   ┌──────────────────────────┐
-                   │     SQLite Database      │
-                   │  (data/anomalies.db)     │
-                   └──────────────┬───────────┘
-                                  │  GET /anomalies
-                                  ▼
-                     ┌──────────────────────────┐
-                     │     Streamlit Dashboard   │
-                     │ • Fetches anomalies       │
-                     │ • Visual charts           │
-                     └───────────────────────────┘
-Architecture Explanation
-1️⃣ Simulator Service
+## 🔄 CI/CD Pipeline
 
-Generates continuous or batch telemetry data (temperature, voltage, vibration, etc.)
+Every push to the `Main` branch automatically:
+1. Triggers Jenkins via GitHub Webhook
+2. SSHes into AWS EC2
+3. Pulls latest code
+4. Rebuilds and restarts all Docker containers
 
-Sends the data to the backend using a REST API
+## 🛰️ Services
 
-Helps simulate real satellite sensor behavior for testing anomaly detection
-
-2️⃣ FastAPI Backend
-
-Central service that receives incoming telemetry
-
-Passes data through the ML anomaly detection model
-
-Flags abnormal readings
-
-Stores anomalies inside the SQLite database
-
-Provides API routes for the dashboard to fetch data
-
-3️⃣ SQLite Database
-
-Lightweight, file-based database
-
-Perfect for hackathons or local execution
-
-Stores timestamped anomaly logs
-
-4️⃣ Streamlit Dashboard
-
-Fetches processed anomaly data from the backend
-
-Visualizes results through charts, graphs, tables
-
-Helps track anomalies in near real time
-
-
-
-
+| Service | Description | Port |
+|---|---|---|
+| Backend | FastAPI anomaly detection API | 8000 |
+| Dashboard | Streamlit visualization | 8501 |
+| Simulator | Satellite telemetry generator | - |
+| Database | PostgreSQL storage | 5432 |
