@@ -8,7 +8,8 @@ pipeline {
                     bat """
                         icacls %SSH_KEY% /inheritance:r
                         icacls %SSH_KEY% /remove "BUILTIN\\Users"
-                        icacls %SSH_KEY% /grant:r "%USERNAME%:(R)"
+                        icacls %SSH_KEY% /grant:r "SYSTEM:(R)"
+                        icacls %SSH_KEY% /grant:r "Administrators:(R)"
                         ssh -i %SSH_KEY% -o StrictHostKeyChecking=no ubuntu@32.197.189.124 "cd satellite-anomaly-detector && git pull && docker compose down && docker compose up --build -d"
                     """
                 }
